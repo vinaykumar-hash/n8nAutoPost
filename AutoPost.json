@@ -1,0 +1,363 @@
+{
+  "name": "AutoPost",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MyhdbAM50Jml8JINUw-XgxY0K3EMUAgkT1UWIJPNJkI",
+          "mode": "list",
+          "cachedResultName": "POST",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MyhdbAM50Jml8JINUw-XgxY0K3EMUAgkT1UWIJPNJkI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MyhdbAM50Jml8JINUw-XgxY0K3EMUAgkT1UWIJPNJkI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "a752b5a3-5e47-4e5e-8f96-c69665b96bc8",
+      "name": "Get Topic",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1872,
+        304
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "vB5WoBZ2BuncRFma",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cfc73c2c-619d-4323-beab-6c87750b19ad",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json[\"tweet\"].length <= 280 }}",
+              "rightValue": ""
+            },
+            {
+              "id": "1012e0ce-d86a-498c-b1ed-c13f2a181942",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json[\"tweet2\"].length <= 280 }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6e838349-6c46-4f94-bad3-1a55a2d50549",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2304,
+        336
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get Topic').item.json['Image URL'] }}",
+        "options": {}
+      },
+      "id": "e58a2323-fc41-43e2-aa45-9fa4f755397d",
+      "name": "Get Img",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1872,
+        512
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://getlate.dev/api/v1/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": {{ JSON.stringify((() => {\n    const text = $('Set Tweets').first().json.tweet || \"\";\n    return text.replace(/\\\\/g, \"\\\\\\\\\").replace(/\"/g, '\\\\\"');\n  })()) }},\n  \"mediaItems\": [\n    {\n      \"type\": \"image\",\n      \"url\": {{ JSON.stringify($('Upload IMG').first().json.files[0].url) }}\n    }\n  ],\n  \"platforms\": [\n    {\n      \"platform\": \"twitter\",\n      \"accountId\": \"693323b9f43160a0bc99a33b\",\n      \"platformSpecificData\": {\n        \"threadItems\": [\n          { \n            \"content\": {{ JSON.stringify((() => {\n              const text = $('Set Tweets').first().json.tweet || \"\";\n              return text.replace(/\\\\/g, \"\\\\\\\\\").replace(/\"/g, '\\\\\"');\n            })()) }}\n          },\n          { \n            \"content\": {{ JSON.stringify((() => {\n              const text = $json.tweet2 || \"\";\n              return text.replace(/\\\\/g, \"\\\\\\\\\").replace(/\"/g, '\\\\\"');\n            })()) }}\n          }\n        ]\n      }\n    }\n  ],\n  \"publishNow\": true\n}",
+        "options": {}
+      },
+      "id": "95a1162e-d2c6-498d-a6e9-c4bd3af996bc",
+      "name": "Post Twitter",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2480,
+        336
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "PrTKr53nvY7icbMm",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 704,
+        "width": 528,
+        "color": 5
+      },
+      "id": "c3030289-bf13-412c-9dc6-dc50f2da2d82",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# POST TO X.COM",
+        "height": 368,
+        "width": 1024,
+        "color": 4
+      },
+      "id": "2490d7ed-fb11-4d3c-8fc8-45f90a00f63b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "ead7f7b2-981f-4f0c-bd3a-6aacbebfa8c9",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1664,
+        304
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  if (item.binary && item.binary.data) {\n    const bin = item.binary.data;\n\n    // Generate timestamp, e.g. 2025-07-25_153045\n    const now = new Date();\n    const pad = n => n.toString().padStart(2, '0');\n    const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;\n\n    // Set file extension based on mime type, fallback to .jpg\n    const ext = bin.mimeType?.split('/')[1] || 'jpg';\n\n    // Rename file\n    bin.fileName = `image-${timestamp}.${ext}`;\n\n    return { json: {}, binary: { data: bin } };\n  }\n  return item;\n});\n"
+      },
+      "id": "bd311f77-4ac0-47d4-bb29-f444e31541b2",
+      "name": "Rename Img",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1680,
+        736
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://getlate.dev/api/v1/media",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "files",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6309cc1c-c614-46f5-aa67-8da577a65735",
+      "name": "Upload IMG",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1872,
+        736
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "PrTKr53nvY7icbMm",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "563ba198-5573-4d97-ba6d-8a66096f9cd6",
+              "name": "tweet",
+              "type": "string",
+              "value": "=📢 {{ $('Get Topic').item.json.Headline }} {{ $json.files[0].url }}  #{{ $('Get Topic').item.json['hashtags 1'] }} #{{ $('Get Topic').item.json['hashtags 2'] }}"
+            },
+            {
+              "id": "74c80466-f00c-44b8-ba09-dfeb8c0a2bf1",
+              "name": "tweet2",
+              "type": "string",
+              "value": "={{ $('Get Topic').item.json.Tweet }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "73462736-43a4-4369-a16b-93e93202f423",
+      "name": "Set Tweets",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2128,
+        336
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3.4,
+      "notes": "TWEET"
+    },
+    {
+      "parameters": {},
+      "id": "3d82f0ba-0da2-4f60-8b59-4cd500e6c2ff",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2672,
+        336
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Post Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Img": {
+      "main": [
+        [
+          {
+            "node": "Rename Img",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Topic": {
+      "main": [
+        [
+          {
+            "node": "Get Img",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Img": {
+      "main": [
+        [
+          {
+            "node": "Upload IMG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Tweets": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload IMG": {
+      "main": [
+        [
+          {
+            "node": "Set Tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Twitter": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "51e11d9b-d2a2-4602-b001-4420ca45dc57",
+  "meta": {
+    "templateId": "8223",
+    "instanceId": "025d5550ee670128b2e3dcd29970810ab72a51d4a1d93f14e23193e0f6db2ebf"
+  },
+  "id": "fWzTrncyE96AEitK",
+  "tags": []
+}
